@@ -1,0 +1,17 @@
+# Pytest: testing framework for writing and running tests
+pytest
+
+# Mypy: static type checking for Python
+mypy
+
+# Black: code formatter that ensures mython codes are PEP8 compliant
+black
+
+# Flake8: linting tool that checks for PEP8 compliance and also other minor issues
+flake8
+
+# Load environment variables in the oythin programs
+python-dotenv
+
+# For asynchronous file operations
+aiofiles
