@@ -31,3 +31,8 @@ VENV/
 # Cache files
 __pycache__
 .mypy_cache
+
+# SSL
+ssl/
+.crt
+.key
