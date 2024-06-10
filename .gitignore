@@ -27,3 +27,7 @@ VENV/
 
 # Log files
 *.log
+
+# Cache files
+__pycache__
+.mypy_cache

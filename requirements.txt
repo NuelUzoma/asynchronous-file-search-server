@@ -15,3 +15,6 @@ python-dotenv
 
 # For asynchronous file operations
 aiofiles
+
+# Lint
+pylint
