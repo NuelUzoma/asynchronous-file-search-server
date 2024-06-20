@@ -33,6 +33,6 @@ __pycache__
 .mypy_cache
 
 # SSL
-ssl/
-.crt
-.key
+./ssl
+*.crt
+*.key

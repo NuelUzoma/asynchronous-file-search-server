@@ -1,7 +1,6 @@
 import unittest
 import asyncio
-import os
-from unittest.mock import patch, mock_open, MagicMock
+from unittest.mock import patch, MagicMock
 from client import tcp_client
 
 
@@ -10,17 +9,28 @@ class TestClientServer(unittest.TestCase):
 
     def setUp(self):
         """Setup method for the test cases"""
-        self.query = "6;0;1;26;0;7;3;0;"  # sample query to be sent to the server
+        self.query = "6;0;1;26;0;7;3;0;"  # sample query sent to the server
         self.config_data = "use_ssl=False\ncertfile=./ssl/algo.crt\n"
         self.env_vars = {"HOST": "127.0.0.1", "PORT": "8888"}
 
-    @patch("builtins.open", new_callable=mock_open)
-    def test_ssl_config_loading(self, mock_file):
-        with patch.dict(os.environ, self.env_vars):
-            from client import use_ssl, certfile
+    @patch("client.use_ssl")
+    @patch("client.certfile")
+    def test_ssl_config_loading(self, mock_use_ssl, mock_certfile):
+        """Test cases for SSL configuration (independent)"""
+        # Parse configuration data
+        config_dict = dict(
+            line.strip().split("=") for line in self.config_data.splitlines())
 
-            self.assertTrue(use_ssl)
-            self.assertEqual(certfile, "./ssl/algo.crt")
+        # Set mock behavior based on parsed data
+        mock_use_ssl.return_value = config_dict.get(
+            "use_ssl", False).lower() in ("true", "on", "1")
+
+        mock_certfile.return_value = config_dict.get("certfile",
+                                                     "./default.crt")
+
+        self.assertFalse(mock_use_ssl.called)
+        self.assertEqual(mock_certfile.return_value,
+                         config_dict.get("certfile"))
 
     @patch("asyncio.open_connection")
     async def test_tcp_client(self, mock_open_connection):

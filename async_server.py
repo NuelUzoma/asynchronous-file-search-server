@@ -1,7 +1,9 @@
-"""Asynchronous server file that sends requests to the server for concurrent tasks
-Efficient method of sending concurrent tasks to server dut to its async nature
-Traditionally, it is single-threaded but will be combined with threading to support
-multithreading.
+"""Asynchronous server file that sends requests to the server
+for concurrent tasks.
+Efficient method of sending concurrent tasks to server
+due to its async nature.
+Traditionally, it is single-threaded but will be combined
+with threading to support multithreading.
 """
 
 import os
@@ -45,13 +47,14 @@ try:
             elif line.startswith("keyfile="):
                 keyfile = line.strip().split("=")[1]
 
-    logger.debug("Extracted path from config: %s",  search_file_path)
+    logger.debug("Extracted path from config: %s", search_file_path)
 
     # Log an error if file or file path doesnt exist
     if not search_file_path or not os.path.exists(search_file_path):
         logger.error(
             "Path to 200k.txt not found in %s or file does not exist.",
-        config_file_path)
+            config_file_path
+        )
         sys.exit(1)
 except FileNotFoundError:
     logger.error("Configuration file %s not found.", config_file_path)
@@ -75,10 +78,10 @@ if not reread_on_query:
 executor = ThreadPoolExecutor(max_workers=10)
 
 
-def search_string_in_cached_file(query: str) -> str:
-    """Search for the string n cached file contents"""
+def search_string_in_cached_file(query: str, file_contents: str) -> str:
+    """Search for the string in cached file contents"""
     try:
-        for line in str(file_contents):
+        for line in file_contents.splitlines():
             if line.strip() == query:
                 return "STRING EXISTS\n"
         return "STRING NOT FOUND\n"
@@ -101,7 +104,8 @@ async def search_string_in_file(query: str) -> str:
 
 
 async def handle_client(reader: StreamReader, writer: StreamWriter) -> None:
-    """Async function that will handle concurrent tasks to the client server"""
+    """Async function that will handle
+    concurrent tasks to the client server"""
     try:
         while True:
             data = await reader.read(1024)  # Maximum payload of 1024 bytes
@@ -120,7 +124,7 @@ async def handle_client(reader: StreamReader, writer: StreamWriter) -> None:
                 response = await search_string_in_file(query)
             else:
                 # Run the search in a seperate thread
-                loop = asyncio.get_running_loop()  # Retrieve current running event loop
+                loop = asyncio.get_running_loop()  # Get current event loop
                 response = await loop.run_in_executor(
                     executor, search_string_in_cached_file, query
                 )
@@ -132,11 +136,11 @@ async def handle_client(reader: StreamReader, writer: StreamWriter) -> None:
             # Write data to the stream
             writer.write(encoded_response)
 
-            # Ensures subsequent operations occur only after data is transmitted
+            # Ensure subsequent operations occurs after data is transmitted
             await writer.drain()
 
     except asyncio.CancelledError:
-        # Return an error if an error occured while connecting to client server
+        # Return error if an error occured while connecting to client server
         logger.error("Error occured while connecting to client server")
 
     except Exception as e:
@@ -156,15 +160,17 @@ async def main() -> None:
         ssl_context = None
         if use_ssl:
             ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            ssl_context.load_cert_chain(certfile=str(certfile), keyfile=str(keyfile))
+            ssl_context.load_cert_chain(
+                certfile=str(certfile), keyfile=str(keyfile)
+            )
+
         # Start asyncio server amd handle client connections
         client_server = await asyncio.start_server(
             handle_client, host, port, ssl=ssl_context
         )
 
-        # Retrieves the address on which the server is listening
-        # for incoming connections
-        client_address = client_server.sockets[0].getsockname()  # first socket object
+        # Retrieves the address the server listens for incoming connections
+        client_address = client_server.sockets[0].getsockname()
 
         # Indicate server is listening for incoming connections
         logger.debug("Serving on %s", client_address)
@@ -175,7 +181,8 @@ async def main() -> None:
     except FileNotFoundError:
         logger.error(
             "Kindly double-check the SSL files: %s, %s for errors",
-        certfile, keyfile)
+            certfile, keyfile
+        )
         sys.exit(1)
     except Exception as e:
         logger.error("An unexpected error occurred: %s", e)
