@@ -1,4 +1,4 @@
-# Async File Search Server
+# Asynchronous File Search Server
 
 ## Project Scope
 
