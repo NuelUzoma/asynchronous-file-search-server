@@ -8,13 +8,12 @@ This project implements an asynchronous Python server designed to handle concurr
 
 - Asynchronous server to handle multiple clients concurrently.
 - Support for different file search algorithms:
-  - Grep (Linux utility)
-  - Linear Search (Standard I/O)
-  - Aho-Corasick Algorithm
   - Asynchronous aiofiles search
-  - Boyer-Moore Algorithm
+  - Linear Search (Standard I/O)
+  - Jump Search Algorithm
+  - Binary Search Algorithm
+  - Exponential Search Algorithm
   - Knuth-Morris-Pratt (KMP) Algorithm
-  - In-Memory Search with Binary Search
   - Multi-threaded search (concurrent.futures)
 - SSL/TLS support for secure connections.
 - Detailed logging and error handling.
@@ -32,7 +31,7 @@ This project implements an asynchronous Python server designed to handle concurr
 
 ```bash
 git clone <repository_url>
-cd algo-server-script-task
+cd asynchronous-file-search-server
 ```
 
 ### 2. Create and Activate Virtual Environment
@@ -76,8 +75,8 @@ After=network.target
 [Service]
 Type=simple
 User=<your_username>
-WorkingDirectory=/path/to/algo-server-script-task
-ExecStart=/path/to/venv/bin/python3 /path/to/algo-server-script-task/async_server.py
+WorkingDirectory=/path/to/asynchronous-file-search-server
+ExecStart=/path/to/venv/bin/python3 /path/to/asynchronous-file-search-server/async_server.py
 Restart=always
 RestartSec=15
 
