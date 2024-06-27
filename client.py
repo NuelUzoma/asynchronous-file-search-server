@@ -1,9 +1,8 @@
-"""Client server script that interacts with the asynchronous server
-to test for concurrent connections"""
+"""Client server script that interacts with the async server."""
 
-import asyncio
 import os
 import sys
+import asyncio
 import ssl
 from dotenv import load_dotenv
 from config.logging_config import get_logger
@@ -14,12 +13,13 @@ load_dotenv()
 
 # Logging configuration
 logger = get_logger()
+
+# Load the path to the 200k.txt from the configuration file
+config_file_path = "config/config.cfg"
 host = os.getenv("HOST")
 port = os.getenv("PORT")
 use_ssl = False
 certfile = None
-
-config_file_path = "config/config.cfg"
 
 try:
     with open(config_file_path, "r", encoding="utf8") as config_file:
@@ -33,38 +33,30 @@ except Exception as e:
     sys.exit(1)
 
 
-async def tcp_client(query: str, file_size: int):
+async def tcp_client(query: str):
     """TCP Client Server Function"""
     writer = None
     try:
         # Function to test the async program for concurrent connections
-
         ssl_context = None
         if use_ssl:
-            ssl_context = ssl.create_default_context(
-                ssl.Purpose.SERVER_AUTH, cafile=certfile
-            )
+            ssl_context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH,
+                                                     cafile=certfile)
 
         # Establish connection to the server
-        reader, writer = await asyncio.open_connection(
-            host, port, ssl=ssl_context
-        )
+        reader, writer = await asyncio.open_connection(host, port,
+                                                       ssl=ssl_context)
 
         # Send message to the server
         logger.debug("Send: %s", query)
 
-        # Potentially modify query based on file size
-        if file_size > 100000:  # Example: Adjust query for larger files
-            modified_query = f"{query} with file size {file_size}"
-        else:
-            modified_query = query
-
         # Convert message to bytes before sending
-        writer.write(modified_query.encode())
+        writer.write(query.encode())
 
         await writer.drain()
 
-        data = await reader.read(1024)  # Maximum payload of 1024 bytes
+        # Maximum payload of 1024 bytes
+        data = await reader.read(1024)
 
         encoded_data = data.decode()
 
@@ -79,7 +71,7 @@ async def tcp_client(query: str, file_size: int):
             # Close the connection to async server
             writer.close()
 
-            # Ensure connection is closed before proceeding with operations
+            # Ensure connection is closed
             await writer.wait_closed()
 
 
@@ -87,19 +79,7 @@ if __name__ == "__main__":
     try:
         # Starts the server
         query = input("Enter the string to search: ")
-
-        # Get user input for file size
-        while True:
-            file_size_str = input("Enter the file size (maximum 1000000): ")
-            try:
-                file_size = int(file_size_str)
-                if file_size <= 0 or file_size > 1000000:
-                    logger.debug("Please enter a value between 1 and 1000000")
-                    continue
-                break
-            except ValueError:
-                logger.error("Invalid input. Please enter a valid integer.")
-        asyncio.run(tcp_client(query, file_size))
+        asyncio.run(tcp_client(query))
     except KeyboardInterrupt:
         # Handle graceful shutdown with keyboard interrupt
         logger.info("Server stopped by user")

@@ -18,3 +18,8 @@ aiofiles
 
 # Lint
 pylint
+
+# Thin wrapper used with pytest for mock purposes
+pytest-mock
+
+pytest-asyncio
